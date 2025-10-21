@@ -3,9 +3,13 @@ version: '3.8'
 services:
   nizam-db:
     image: postgres:15-alpine
+    # Use Postgres 15 to match the existing data directory initialized by Postgres 15.
+    # Avoid using a newer major version unless you migrate the data first.
+    restart: always
     container_name: nizam_main_db
     ports:
-      - "5432:5432"
+      # Map host port 5433 to container 5432 to avoid conflicts with a local Postgres on 5432
+      - "5433:5432"
     environment:
       POSTGRES_USER: ENG-Ahmed-Naeim
       POSTGRES_PASSWORD: 123456
@@ -14,4 +18,4 @@ services:
       - nizam-data:/var/lib/postgresql/data
 
 volumes:
-  nizam-data: {}
+  nizam-data:
