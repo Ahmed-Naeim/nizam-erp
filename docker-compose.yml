@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  nizam-db:
+    image: postgres:15-alpine
+    container_name: nizam_main_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ENG-Ahmed-Naeim
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: nizam_main
+    volumes:
+      - nizam-data:/var/lib/postgresql/data
+
+volumes:
+  nizam-data: {}
