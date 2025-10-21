@@ -11,9 +11,9 @@ services:
       # Map host port 5433 to container 5432 to avoid conflicts with a local Postgres on 5432
       - "5433:5432"
     environment:
-      POSTGRES_USER: ENG-Ahmed-Naeim
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: nizam_main
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - nizam-data:/var/lib/postgresql/data
 
