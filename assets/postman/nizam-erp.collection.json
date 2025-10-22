@@ -1,0 +1,130 @@
+{
+  "info": {
+    "name": "Nizam ERP",
+    "_postman_id": "nizam-erp-collection",
+    "description": "Collection to test Nizam ERP multi-tenant endpoints (register, login, profile, employees CRUD)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"AcmeCo\",\n  \"email\": \"admin@acmeco.test\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/api/auth/register", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","auth","register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@acmeco.test\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/api/auth/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","auth","login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.accessToken) {",
+                  "  pm.environment.set('accessToken', jsonData.accessToken);",
+                  "} else if (jsonData && jsonData.token) {",
+                  "  pm.environment.set('accessToken', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/api/auth/profile", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","auth","profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employees",
+      "item": [
+        {
+          "name": "Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"j.doe@company.test\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/api/employees", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","employees"] }
+          }
+        },
+        {
+          "name": "List Employees",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/api/employees", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","employees"] }
+          }
+        },
+        {
+          "name": "Get Employee",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/api/employees/:id", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","employees",":id"] }
+          }
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Jane\"\n}" },
+            "url": { "raw": "http://localhost:3000/api/employees/:id", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","employees",":id"] }
+          }
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/api/employees/:id", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api","employees",":id"] }
+          }
+        }
+      ]
+    }
+  ]
+}

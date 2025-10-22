@@ -1,82 +1,133 @@
-# NizamErp
+# Nizam ERP (نظام)
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+<p align="center">
+  <img src="assets/Nizam-ERP-MVP-PostmanTest.gif" alt="Nizam ERP demo" title="Nizam ERP — Postman flow demo" width="720" />
+</p>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+Nizam ERP is a **multi-tenant, modular SaaS (Software as a Service)** platform designed to provide small and medium-sized enterprises (SMEs) with a unified system for managing core business operations.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+This project is the v1.0 MVP, demonstrating a scalable and secure architecture. The primary engineering challenge—dynamic, database-per-tenant isolation—is fully implemented.
 
-## Finish your CI setup
+* **Target Market:** SMEs in the Gulf and Egyptian markets.
+* **Core Problem Solved:** Replaces messy, disconnected spreadsheets with a single, reliable, and isolated source of truth for each company's data.
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/VHcpkMG05A)
+-----
 
+## 🚀 Core Architecture: The "Database-per-Tenant" Model
 
-## Run tasks
+This project's foundation is a robust **Database-per-Tenant** architecture.
 
-To run the dev server for your app, use:
+**Analogy:** The application is an apartment building.
 
-```sh
+* **`nizam_main` (The "Lobby" DB):** A single central database that only knows *who* lives in *which apartment*. It contains the `tenants` and `users` tables.
+* **Tenant Databases (The "Private" DBs):** When a new company registers (e.g., "Apex Manufacturing"), the system **dynamically creates a brand-new, completely isolated database** (e.g., `tenant_apex_manufacturing`).
+* **The Flow:**
+  1. A user logs in via the central `nizam_main` DB.
+  2. They receive a JWT containing their unique `tenantId`.
+  3. For all subsequent requests (e.g., `GET /api/employees`), the backend reads the `tenantId` from the JWT and **dynamically creates a new connection** to that tenant's private database.
+
+This model provides maximum security and data isolation, as no tenant's data ever co-exists with another's.
+
+-----
+
+## 🛠️ Tech Stack
+
+| Component | Technology | Rationale |
+| :--- | :--- | :--- |
+| **Workspace** | **Nx (Nrwl Extensions)** | A professional monorepo for managing a large-scale project and sharing code. |
+| **Framework** | **NestJS** | A robust, scalable, and modular Node.js framework. |
+| **Database** | **Docker (PostgreSQL 15)** | Runs a consistent, isolated, and production-ready database environment locally. |
+| **ORM** | **TypeORM** | Defines database tables as TypeScript classes (Entities). |
+| **Architecture** | **Multi-Tenancy** | The core database-per-tenant design pattern. |
+| **Authentication** | **JWT & Passport.js** | Secure, token-based authentication with a `tenantId` payload. |
+| **Validation** | **`class-validator`** | Handles all API request DTO (Data Transfer Object) validation. |
+| **Configuration** | **`@nestjs/config` (.env)** | Securely manages all environment variables (e.g., DB passwords, JWT secret). |
+
+-----
+
+## ✨ MVP v1.0 Features (Complete)
+
+This v1.0 is a complete, testable application that fully demonstrates the core architecture.
+
+### ✅ Epic 1: Onboarding & Core Auth
+
+* **Multi-Tenant Registration (`POST /api/auth/register`):**
+  * Registers a new company (`Tenant`) in the `nizam_main` DB.
+  * Registers the company's first `User` in the `nizam_main` DB.
+  * **Dynamically creates a new, private database** for that tenant.
+* **Authentication (`POST /api/auth/login`):**
+  * Validates credentials against the `nizam_main` DB.
+  * Returns a signed **JWT** containing the `userId` and `tenantId`.
+* **Protected Routes (`AuthGuard`):**
+  * Includes a `GET /api/auth/profile` endpoint protected by the JWT guard.
+
+### ✅ Epic 2: Basic HRM Module (Tenant-Isolated)
+
+* **Fully Protected:** All endpoints are locked and require a valid JWT.
+* **Dynamic Connections:** The `EmployeeService` is **Request-Scoped**, creating a new, dynamic connection to the correct tenant's private database *on every request*.
+* **Automatic Table Creation:** The `synchronize: true` flag in the dynamic connection automatically creates the `employees` table in the new tenant database on first access.
+  * **Full CRUD Operations:**
+    * `POST /api/employees` - Create a new employee.
+    * `GET /api/employees` - Get a list of all employees *for that tenant only*.
+    * `GET /api/employees/:id` - Get a single employee.
+    * `PATCH /api/employees/:id` - Update an employee.
+    * `DELETE /api/employees/:id` - Delete an employee.
+
+-----
+
+## 🗺️ Future Roadmap
+
+* **`feature/inventory-module` (In Progress):** Work is beginning on the next module in a separate branch.
+* **Epic 4: Basic Production Planning Module**
+* **Database Migrations:** Move from `synchronize: true` to a production-ready TypeORM migration system that can provision new tenant databases.
+
+-----
+
+## ⚙️ How to Run This Project
+
+1. **Ensure Docker Desktop is running.**
+1. Start the PostgreSQL database:
+
+```bash
+docker-compose up -d
+```
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+1. Copy `.env.example` to `.env` and fill in the variables (if you have an example file).
+1. Run the application:
+
+```bash
 npx nx serve nizam-erp
 ```
 
-To create a production bundle:
+* **App URL:** `http://localhost:3000`
+* **Database (pgAdmin):** Connect to `localhost:5432` with the credentials from your `.env` file.
 
-```sh
-npx nx build nizam-erp
-```
+-----
 
-To see all available targets to run for a project, run:
+## 🧪 How to Test (Postman)
 
-```sh
-npx nx show project nizam-erp
-```
+A Postman collection is included in this repository to test all endpoints and the data isolation.
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+1. Import the `assets/postman/nizam-erp.collection.json` file into Postman.
+1. Create a new Postman Environment and add a variable:
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+* **Variable:** `accessToken`
+* **Value:** (leave blank)
 
-## Add new projects
+1. Run the requests in order. The "Login" request includes a test script to automatically save your JWT to the `accessToken` variable, which all protected requests use.
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+-----
 
-Use the plugin's generator to create new projects.
+## Contact
 
-To generate a new application, use:
+If you'd like to reach out, contact:
 
-```sh
-npx nx g @nx/nest:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/node:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+* LinkedIn: [Ahmed M. Naeim](https://www.linkedin.com/in/ahmed-m-naeim/)
+* GitHub: [Ahmed-Naeim](https://github.com/Ahmed-Naeim)
+* Email: [eng.a.naeim@gmail.com](mailto:eng.a.naeim@gmail.com)
