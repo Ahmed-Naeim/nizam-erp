@@ -6,21 +6,26 @@ import { AuthController } from './auth.controller';
 import { TenantModule } from '../tenant/tenant.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     TenantModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule], // This internal import is ONLY for the factory
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' }, // Token is valid for 1 day
+        signOptions: { expiresIn: '1d' },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
+  exports: [PassportModule, JwtStrategy],
 })
 export class AuthModule {}
