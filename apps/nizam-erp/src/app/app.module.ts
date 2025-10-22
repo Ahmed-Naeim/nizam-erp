@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { Tenant } from '../tenant/entities/tenant.entity';
 import { User } from '../auth/entities/user.entity';
 import { EmployeeModule } from '../employee/employee.module';
+import { InventoryModule } from '../inventory/inventory.module';
 @Module({
   imports: [
     // 2. Load the .env file. Make it global so other modules can see it.
@@ -37,6 +38,7 @@ import { EmployeeModule } from '../employee/employee.module';
     TenantModule,
     AuthModule,
     EmployeeModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
