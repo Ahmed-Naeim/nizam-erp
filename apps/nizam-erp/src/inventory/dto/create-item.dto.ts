@@ -21,7 +21,7 @@ export class CreateItemDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(50)
-  unitofMeasure: string; // e.g., 'PCS', 'KG', 'MTR'
+  unitOfMeasure: string; // e.g., 'PCS', 'KG', 'MTR'
 
   // --- Fields for SKU Generation ---
   @IsNotEmpty()

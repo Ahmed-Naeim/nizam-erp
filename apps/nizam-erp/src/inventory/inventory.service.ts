@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleDestroy, Scope } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException, OnModuleDestroy, Scope } from "@nestjs/common";
 import { DataSource, Like, Repository } from "typeorm";
 import { Item } from "./entities/item.entity";
 import { REQUEST } from "@nestjs/core";
@@ -8,6 +8,7 @@ import { Tenant } from "../tenant/entities/tenant.entity";
 import { JwtPayload } from "../auth/jwt.strategy";
 import { CreateItemDto } from "./dto/create-item.dto";
 import { UpdateItemDto } from "./dto/update-item.dto";
+import { AdjustStockDto } from "./dto/adjust-stock.dto.";
 
 // 1. Make the service request-scoped
 @Injectable({scope: Scope.REQUEST})
@@ -166,7 +167,7 @@ export class InventoryService implements  OnModuleDestroy {
 
     // If item not found, throw an error
     if (!item) {
-      throw new Error(`Item with ID "${id}" not found`);
+      throw new NotFoundException(`Item with ID "${id}" not found`);
     }
 
     // Save and return the updated item
@@ -183,7 +184,7 @@ export class InventoryService implements  OnModuleDestroy {
 
     // If item not found, throw an error
     if (!item) {
-      throw new Error(`Item with ID "${id}" not found`);
+      throw new NotFoundException(`Item with ID "${id}" not found`);
     }
 
     // Remove the item
@@ -193,4 +194,20 @@ export class InventoryService implements  OnModuleDestroy {
     return { message: `Item with ID "${id}" successfully deleted` };
 
   }
+
+  async adjustStock(adjustStockDto: AdjustStockDto): Promise<Item> {
+  const { itemId, newQuantity } = adjustStockDto;
+
+  const repo = await this.getRepo();
+
+  const item = await repo.findOneBy({ id: itemId });
+
+  if (!item) {
+    throw new NotFoundException(`Item with ID "${itemId}" not found`);
+  }
+
+  item.quantityOnHand = newQuantity;
+
+  return repo.save(item);
+}
 }

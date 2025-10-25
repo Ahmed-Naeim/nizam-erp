@@ -17,7 +17,7 @@ export class Item {
   description: string;
 
   @Column({ type: 'varchar', length: 50 })
-  unitofMeasure: string;
+  unitOfMeasure: string;
 
   @Column({ type:'decimal', default: 0,})
   quantityOnHand: number;
