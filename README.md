@@ -131,3 +131,13 @@ If you'd like to reach out, contact:
 * LinkedIn: [Ahmed M. Naeim](https://www.linkedin.com/in/ahmed-m-naeim/)
 * GitHub: [Ahmed-Naeim](https://github.com/Ahmed-Naeim)
 * Email: [eng.a.naeim@gmail.com](mailto:eng.a.naeim@gmail.com)
+
+---
+
+## Production & Deployment
+
+A full, reproducible production deployment runbook is maintained in the repository. Follow it for building, running migrations, and deploying the app in a controlled way:
+
+- See: `PRODUCTION_RUNBOOK.md` — contains recommended CI flows, migration runner guidance, Docker/compose instructions, and rollback notes.
+
+If you're preparing a release, run migrations from CI or a controlled job before deploying application instances. The runbook includes suggested commands and safety checks.
