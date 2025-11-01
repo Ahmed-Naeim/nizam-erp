@@ -9,6 +9,7 @@ import { TenantModule } from '../tenant/tenant.module';
 import { AuthModule } from '../auth/auth.module';
 import { Tenant } from '../tenant/entities/tenant.entity';
 import { User } from '../auth/entities/user.entity';
+import { InitialMainSchema1761993144402 } from '../migrations/main/1761993144402-InitialMainSchema';
 import { EmployeeModule } from '../employee/employee.module';
 import { InventoryModule } from '../inventory/inventory.module';
 @Module({
@@ -26,12 +27,16 @@ import { InventoryModule } from '../inventory/inventory.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
+        port: Number(configService.get<string>('DB_PORT') || 5432),
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         entities: [Tenant, User],
-        synchronize: true, // Keep this for dev
+        synchronize: false, // Use migrations instead of auto-sync
+  migrations: [InitialMainSchema1761993144402],
+        // Only auto-run migrations in non-production environments.
+        // In production, run migrations ahead-of-time via the CLI (CI/CD).
+        migrationsRun: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
 

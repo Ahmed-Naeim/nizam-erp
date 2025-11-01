@@ -51,7 +51,8 @@ export class EmployeeService implements OnModuleDestroy {
       password: this.configService.get<string>('DB_PASSWORD'),
       database: tenant.db_name, // <-- The magic! the main point!!!
       entities: [Employee],
-      synchronize: true,
+      // switched to migrations for production safety
+      synchronize: false,
     });
 
     // 3. Initialize the connection and set up the repository

@@ -1,0 +1,47 @@
+name: CI Build, Migrate and (optional) Push
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-migrate:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npm run build:nizam-erp
+
+      - name: Run migrations (compiled runner)
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          # This will run main migrations then tenant migrations (reads tenants from main DB)
+          node dist/apps/nizam-erp/src/scripts/migrate-runner.js
+
+      # Optional: Build and push Docker image (uncomment and configure registry/secrets)
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     push: true
+      #     tags: ghcr.io/<org>/nizam-erp:${{ github.sha }}
+
+*** End Patch

@@ -2,7 +2,12 @@
   "name": "@nizam-erp/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+  "start:nizam-erp": "npx nx serve nizam-erp",
+  "typeorm": "ts-node -r tsconfig-paths/register --project ./apps/nizam-erp/tsconfig.app.json ./node_modules/typeorm/cli.js",
+  "migrate:runner": "node dist/apps/nizam-erp/src/scripts/migrate-runner.js",
+  "migrate:runner:single": "node dist/apps/nizam-erp/src/scripts/migrate-runner.js"
+  },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^11.0.0",
@@ -17,6 +22,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "dotenv": "^16.6.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
